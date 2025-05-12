@@ -490,15 +490,23 @@ const Archives = () => {
                         render={({ field }) => (
                           <FormItem className="w-full md:w-48">
                             <FormControl>
-                              <select
-                                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                                {...field}
-                              >
-                                <option value="all">All Years</option>
-                                {years.map(year => (
-                                  <option key={year} value={year}>{year}</option>
-                                ))}
-                              </select>
+                              <div className="relative">
+                                <select
+                                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                                  {...field}
+                                  disabled={isLoadingPosts}
+                                >
+                                  <option value="all">All Years</option>
+                                  {years.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                  ))}
+                                </select>
+                                {isLoadingPosts && (
+                                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                )}
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -511,23 +519,48 @@ const Archives = () => {
                         render={({ field }) => (
                           <FormItem className="w-full md:w-48">
                             <FormControl>
-                              <select
-                                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                                {...field}
-                              >
-                                <option value="all">All Categories</option>
-                                {categories.map(category => (
-                                  <option key={category} value={category}>{category}</option>
-                                ))}
-                              </select>
+                              <div className="relative">
+                                <select
+                                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                                  {...field}
+                                  disabled={isLoadingCategories}
+                                >
+                                  <option value="all">All Categories</option>
+                                  {wpCategories.length > 0 ? (
+                                    wpCategories.map(category => (
+                                      <option key={category.id} value={category.name}>{category.name}</option>
+                                    ))
+                                  ) : (
+                                    categories.map(category => (
+                                      <option key={category} value={category}>{category}</option>
+                                    ))
+                                  )}
+                                </select>
+                                {isLoadingCategories && (
+                                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  </div>
+                                )}
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                       
-                      <Button type="submit" className="bg-[hsl(var(--primary-blue))]">
-                        Search
+                      <Button 
+                        type="submit" 
+                        className="bg-[hsl(var(--primary-blue))]"
+                        disabled={isLoadingPosts || isLoadingCategories}
+                      >
+                        {isLoadingPosts ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Loading...
+                          </>
+                        ) : (
+                          <>Search</>
+                        )}
                       </Button>
                     </div>
                   </form>
@@ -535,10 +568,45 @@ const Archives = () => {
               </TabsContent>
               
               <TabsContent value="significant">
-                <p className="text-gray-600 mb-6">
-                  Highlighting the most impactful and historic front pages from The Star's 18-year history. 
-                  These headlines mark pivotal moments in Kenya's journey that defined our nation.
-                </p>
+                <div className="space-y-6">
+                  <p className="text-gray-600">
+                    Highlighting the most impactful and historic front pages from The Star's 18-year history. 
+                    These headlines mark pivotal moments in Kenya's journey that defined our nation.
+                  </p>
+                  
+                  {isLoadingPosts ? (
+                    <div className="flex justify-center py-6">
+                      <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary-blue))] mb-4" />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {wpCategories.length > 0 && wpCategories
+                        .filter(cat => 
+                          cat.name.toLowerCase().includes("featured") || 
+                          cat.name.toLowerCase().includes("breaking") ||
+                          cat.name.toLowerCase().includes("headline") ||
+                          cat.name.toLowerCase().includes("important")
+                        )
+                        .slice(0, 6)
+                        .map(category => (
+                          <Button
+                            key={category.id}
+                            variant="outline"
+                            className="p-4 h-auto flex flex-col items-center justify-center gap-2 text-center"
+                            onClick={() => {
+                              setSearchParams({ categories: [category.id] });
+                              setActiveTab("all");
+                            }}
+                          >
+                            <Tag className="h-5 w-5 text-[hsl(var(--primary-blue))]" />
+                            <span>{category.name}</span>
+                            <span className="text-xs text-gray-500">{category.count} articles</span>
+                          </Button>
+                        ))
+                      }
+                    </div>
+                  )}
+                </div>
               </TabsContent>
             </Tabs>
           </motion.div>
