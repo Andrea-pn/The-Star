@@ -114,6 +114,20 @@
     }
   }
 
+  /* Slow pulse animation for counters */
+  .animate-pulse-slow {
+    animation: pulse-slow 3s infinite;
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+  
   /* Sponsor logo hover effect */
   .sponsor-logo {
     @apply filter grayscale opacity-70 transition-all duration-300;

@@ -18,8 +18,9 @@ const extractCategory = (post: WPPost): string => {
     return 'News';
   }
   
+  // Find the category terms from the embedded terms
   const categories = post._embedded['wp:term']?.find(terms => 
-    terms.length > 0 && terms[0].taxonomy === 'category'
+    terms.length > 0 && 'slug' in terms[0] && terms[0].slug.includes('categor')
   );
   
   return categories && categories.length > 0 

@@ -178,7 +178,10 @@ const Impact = () => {
           ))}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start" ref={ref}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start" ref={(el) => {
+            // Create a div element ref
+            if (el) ref(el);
+          }}>
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
