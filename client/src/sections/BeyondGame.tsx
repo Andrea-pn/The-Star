@@ -22,7 +22,7 @@ const BeyondGame = () => {
     >
       <div className="container mx-auto px-4">
         <SectionHeading>
-          BEYOND THE GAME
+          BEYOND THE NEWS
         </SectionHeading>
         
         <motion.p
@@ -31,8 +31,8 @@ const BeyondGame = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-dark text-xl mb-12 max-w-3xl"
         >
-          Discovering how sports impact communities beyond physical activity – 
-          building leadership, teamwork, and personal growth that extends into all aspects of life.
+          For 18 years, The Star's influence has extended beyond headlines – fostering informed debate, 
+          shaping public policy, and empowering communities through knowledge and truth.
         </motion.p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
@@ -42,9 +42,9 @@ const BeyondGame = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <PolaroidImage
-              src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211"
-              alt="Team building activities in sports"
-              caption="Building Team Leaders"
+              src="https://images.unsplash.com/photo-1516321497487-e288fb19713f"
+              alt="Community engagement panel discussion"
+              caption="Public Debate Forums"
               rotation={1}
             />
           </motion.div>
@@ -55,9 +55,9 @@ const BeyondGame = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <PolaroidImage
-              src="https://images.unsplash.com/photo-1556817411-31ae72fa3ea0"
-              alt="Sports mentorship program"
-              caption="Sports Mentorship"
+              src="https://images.unsplash.com/photo-1607453998774-d533f65dac99"
+              alt="Youth journalism workshop"
+              caption="Youth Journalism Initiative"
               rotation={-2}
             />
           </motion.div>
@@ -68,9 +68,9 @@ const BeyondGame = () => {
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             <PolaroidImage
-              src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45"
-              alt="Academic support for student athletes"
-              caption="Scholar Athletes"
+              src="https://images.unsplash.com/photo-1531482615713-2afd69097998"
+              alt="Environmental campaign organized by The Star"
+              caption="Environmental Campaigns"
               rotation={2}
             />
           </motion.div>
@@ -81,9 +81,9 @@ const BeyondGame = () => {
             transition={{ duration: 0.5, delay: 0.6 }}
           >
             <PolaroidImage
-              src="https://images.unsplash.com/photo-1552581234-26160f608093"
-              alt="Career development for athletes"
-              caption="Career Skills Through Sport"
+              src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f"
+              alt="Digital literacy training program"
+              caption="Digital Literacy Programs"
               rotation={-1}
             />
           </motion.div>
