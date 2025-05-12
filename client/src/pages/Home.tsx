@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Helmet } from "react-helmet";
 import Navbar from "../components/Navbar";
+import SectionSeparator from "../components/SectionSeparator";
 import Hero from "../sections/Hero";
 import LevellingField from "../sections/LevellingField";
 import BeyondGame from "../sections/BeyondGame";
@@ -24,10 +25,15 @@ const Home = () => {
       <Navbar />
       <main>
         <Hero />
+        <SectionSeparator color="#f8fafc" />
         <LevellingField />
+        <SectionSeparator color="#fff" />
         <BeyondGame />
+        <SectionSeparator color="#f8fafc" />
         <ChampionsChange />
+        <SectionSeparator color="#111111" />
         <Impact />
+        <SectionSeparator color="#f8fafc" />
         <Sponsors />
       </main>
       <Footer />
