@@ -1,18 +1,63 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import SectionHeading from "../components/SectionHeading";
 import PolaroidImage from "../components/PolaroidImage";
 import TornPaperEdge from "../components/TornPaperEdge";
 import { useIntersectionObserver } from "../hooks/useIntersectionObserver";
 import { TrainingProgram } from "../types";
+import { fetchPosts, getFeaturedImageUrl, WPPost } from "../services/wordpress-api";
+import { useState, useEffect } from "react";
+
+// Function to convert WordPress post to PolaroidImage props
+const postToPolaroidProps = (post: WPPost, rotation: number = 0) => {
+  const imageUrl = getFeaturedImageUrl(post) || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167';
+  
+  // Extract category
+  let category = "News";
+  if (post._embedded && post._embedded['wp:term'] && post._embedded['wp:term'][0] && post._embedded['wp:term'][0].length > 0) {
+    category = post._embedded['wp:term'][0][0].name;
+  }
+  
+  return {
+    src: imageUrl,
+    alt: post.title.rendered,
+    caption: category,
+    rotation
+  };
+};
 
 const LevellingField = () => {
   const { ref, inView } = useIntersectionObserver({ threshold: 0.1 });
+  const [featuredPosts, setFeaturedPosts] = useState<WPPost[]>([]);
 
-  // Fetch training programs from API
+  // Fetch training programs from API (legacy)
   const { data: programs = [] } = useQuery<TrainingProgram[]>({
     queryKey: ['/api/programs/training'],
   });
+
+  // Fetch featured posts from WordPress API
+  const { data: postsData, isLoading: isLoadingPosts } = useQuery({
+    queryKey: ['wp-featured-posts'],
+    queryFn: async () => {
+      // Fetch posts with featured media embedded
+      const result = await fetchPosts({
+        per_page: 4,
+        _embed: true
+      });
+      return result;
+    }
+  });
+
+  // Process posts data when available
+  useEffect(() => {
+    if (postsData?.posts) {
+      setFeaturedPosts(postsData.posts);
+    }
+  }, [postsData]);
+
+  // Create array of rotations for polaroid images
+  const rotations = [-2, 1, -1, 2];
 
   return (
     <section 
@@ -36,57 +81,82 @@ const LevellingField = () => {
         </motion.p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <PolaroidImage
-              src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167"
-              alt="Journalist reporting breaking news"
-              caption="Breaking News Coverage"
-              rotation={-2}
-            />
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <PolaroidImage
-              src="https://images.unsplash.com/photo-1557200134-90327ee9fafa"
-              alt="Investigative journalism documents"
-              caption="Investigative Reporting"
-              rotation={1}
-            />
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <PolaroidImage
-              src="https://images.unsplash.com/photo-1503428593586-e225b39bddfe"
-              alt="Community engagement event"
-              caption="Community Engagement"
-              rotation={-1}
-            />
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >
-            <PolaroidImage
-              src="https://images.unsplash.com/photo-1569616724363-dbdebd9561ca"
-              alt="Digital journalism platform"
-              caption="Digital Transformation"
-              rotation={2}
-            />
-          </motion.div>
+          {isLoadingPosts ? (
+            <div className="col-span-full flex justify-center items-center py-12">
+              <Loader2 className="h-12 w-12 animate-spin text-white" />
+              <span className="ml-3 text-white text-lg">Loading featured stories...</span>
+            </div>
+          ) : featuredPosts.length > 0 ? (
+            featuredPosts.map((post, index) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.3 + (index * 0.1) }}
+              >
+                <a href={post.link} target="_blank" rel="noopener noreferrer">
+                  <PolaroidImage
+                    {...postToPolaroidProps(post, rotations[index % rotations.length])}
+                  />
+                </a>
+              </motion.div>
+            ))
+          ) : (
+            // Fallback to static content if no posts
+            <>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <PolaroidImage
+                  src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167"
+                  alt="Journalist reporting breaking news"
+                  caption="Breaking News Coverage"
+                  rotation={-2}
+                />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <PolaroidImage
+                  src="https://images.unsplash.com/photo-1557200134-90327ee9fafa"
+                  alt="Investigative journalism documents"
+                  caption="Investigative Reporting"
+                  rotation={1}
+                />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <PolaroidImage
+                  src="https://images.unsplash.com/photo-1503428593586-e225b39bddfe"
+                  alt="Community engagement event"
+                  caption="Community Engagement"
+                  rotation={-1}
+                />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
+                <PolaroidImage
+                  src="https://images.unsplash.com/photo-1569616724363-dbdebd9561ca"
+                  alt="Digital journalism platform"
+                  caption="Digital Transformation"
+                  rotation={2}
+                />
+              </motion.div>
+            </>
+          )}
         </div>
         
         <motion.div
@@ -96,7 +166,7 @@ const LevellingField = () => {
           className="mt-16 flex justify-center"
         >
           <motion.a
-            href="#contact"
+            href="/archives"
             className="bg-white text-[hsl(var(--primary-red))] font-montserrat font-bold px-8 py-4 rounded-full hover:bg-gray-100 transition-all duration-300 inline-flex items-center"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

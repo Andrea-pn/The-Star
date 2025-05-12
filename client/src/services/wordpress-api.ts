@@ -75,6 +75,7 @@ export async function fetchPosts(params: {
   categories?: number[];
   tags?: number[];
   search?: string;
+  _embed?: boolean;
 } = {}): Promise<{
   posts: WPPost[];
   totalPages: number;
@@ -93,8 +94,10 @@ export async function fetchPosts(params: {
   }
   if (params.search) queryParams.append('search', params.search);
   
-  // Always embed featured media and terms
-  queryParams.append('_embed', 'true');
+  // Always embed featured media and terms, unless specifically disabled
+  if (params._embed !== false) {
+    queryParams.append('_embed', 'true');
+  }
   
   const url = `${WP_API_URL}/posts?${queryParams.toString()}`;
   
