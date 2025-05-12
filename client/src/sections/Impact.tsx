@@ -135,15 +135,57 @@ const Impact = () => {
       className="bg-gradient-to-br from-[hsl(var(--primary-blue))] to-[hsl(var(--primary-blue-dark))] py-20 relative text-white overflow-hidden"
       ref={containerRef}
     >
-      {/* Background decorative elements with parallax */}
+      {/* Enhanced background decorative elements with parallax */}
       <div className="absolute inset-0 overflow-hidden">
+        {/* Top right motion element */}
         <motion.div 
-          className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white opacity-5"
-          style={{ y: yPos }}
+          className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-white opacity-5"
+          style={{ 
+            y: yPos,
+            scale: useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1.05, 0.95]) 
+          }}
         />
+        
+        {/* Bottom left motion element */}
         <motion.div 
-          className="absolute bottom-20 -left-20 w-60 h-60 rounded-full bg-white opacity-5"
-          style={{ y: useTransform(scrollYProgress, [0, 1], [100, 0]) }}
+          className="absolute bottom-20 -left-20 w-80 h-80 rounded-full bg-white opacity-5"
+          style={{ 
+            y: useTransform(scrollYProgress, [0, 1], [100, 0]),
+            scale: useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 0.9]) 
+          }}
+        />
+        
+        {/* Decorative floating elements inspired by BBC Storyworks */}
+        <motion.div 
+          className="absolute top-1/4 left-[15%] w-12 h-12 rounded-full bg-blue-400 opacity-10"
+          style={{ 
+            y: useTransform(scrollYProgress, [0, 1], [-30, 30]),
+            x: useTransform(scrollYProgress, [0, 1], [-10, 10]) 
+          }}
+        />
+        
+        <motion.div 
+          className="absolute top-2/3 right-[10%] w-20 h-20 rounded-full bg-blue-300 opacity-10"
+          style={{ 
+            y: useTransform(scrollYProgress, [0, 1], [40, -40]),
+            x: useTransform(scrollYProgress, [0, 1], [20, -20]) 
+          }}
+        />
+        
+        <motion.div 
+          className="absolute top-1/2 right-1/4 w-16 h-16 rounded-md rotate-45 bg-white opacity-5"
+          style={{ 
+            y: useTransform(scrollYProgress, [0, 1], [-50, 50]),
+            rotate: useTransform(scrollYProgress, [0, 1], [45, 90]) 
+          }}
+        />
+        
+        <motion.div 
+          className="absolute bottom-1/3 left-1/3 w-24 h-24 rounded-full bg-blue-200 opacity-5"
+          style={{ 
+            y: useTransform(scrollYProgress, [0, 1], [30, -30]),
+            scale: useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 0.9]) 
+          }}
         />
       </div>
       
