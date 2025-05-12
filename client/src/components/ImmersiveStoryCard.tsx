@@ -1,6 +1,6 @@
-import { useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { CalendarDays, ExternalLink } from 'lucide-react';
+import { Calendar, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface ImmersiveStoryCardProps {
@@ -24,94 +24,162 @@ const ImmersiveStoryCard = ({
   featured = false,
   direction = 'left',
 }: ImmersiveStoryCardProps) => {
+  const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  
   const { scrollYProgress } = useScroll({
     target: cardRef,
-    offset: ['start end', 'end start'],
+    offset: ["start end", "end start"]
   });
-
-  // Create parallax effect for the text content
-  const textX = useTransform(
+  
+  const imageOffset = useTransform(
     scrollYProgress, 
-    [0, 1], 
-    direction === 'left' ? [-50, 50] : [50, -50]
+    [0, 1],
+    [direction === 'left' ? 40 : -40, 0]
   );
   
-  // Create parallax effect for the image
-  const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1.05, 0.9]);
-  const imageY = useTransform(scrollYProgress, [0, 1], [-20, 20]);
+  const contentOffset = useTransform(
+    scrollYProgress, 
+    [0, 1],
+    [direction === 'left' ? -40 : 40, 0]
+  );
   
-  // Layer opacity effect
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 0.6, 0.3]);
+  const opacity = useTransform(
+    scrollYProgress,
+    [0, 0.2, 1],
+    [0, 1, 1]
+  );
+
+  if (featured) {
+    return (
+      <motion.div
+        ref={cardRef}
+        className="relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white h-[500px] group"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Background image with parallax effect */}
+        <motion.div 
+          className="absolute inset-0 z-0"
+          style={{ y: imageOffset }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10" />
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-700"
+            style={{
+              transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+              transition: 'transform 0.7s ease-out'
+            }}
+          />
+        </motion.div>
+        
+        {/* Content */}
+        <motion.div 
+          className="absolute inset-0 z-20 flex flex-col justify-end p-8 md:p-12"
+          style={{ y: contentOffset, opacity }}
+        >
+          <div className="mb-4">
+            <Badge className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 text-sm mb-4">
+              {category}
+            </Badge>
+          </div>
+          
+          <h2 className="font-montserrat font-bold text-3xl md:text-4xl lg:text-5xl mb-4 max-w-lg">
+            {title}
+          </h2>
+          
+          <p className="text-gray-200 mb-6 max-w-lg line-clamp-2">
+            {excerpt}
+          </p>
+          
+          <div className="flex items-center text-sm text-gray-300 mb-6">
+            <Calendar className="w-4 h-4 mr-2" />
+            <span>{date}</span>
+          </div>
+          
+          <motion.div
+            whileHover={{ x: 5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <a
+              href={link}
+              className="inline-flex items-center text-white text-lg font-medium hover:text-blue-300 transition-colors"
+            >
+              Read Full Story <ArrowRight className="ml-2" />
+            </a>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    );
+  }
   
   return (
     <motion.div
       ref={cardRef}
-      className="relative w-full overflow-hidden rounded-xl shadow-xl h-[500px] group"
-      initial={{ opacity: 0, y: 50 }}
+      className={`flex flex-col md:flex-row ${direction === 'right' ? 'md:flex-row-reverse' : ''} gap-6 md:gap-10 relative overflow-hidden`}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.6 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Background image with parallax effect */}
+      {/* Image */}
       <motion.div 
-        className="absolute inset-0 w-full h-full"
-        style={{ scale: imageScale, y: imageY }}
+        className="md:w-1/2 relative overflow-hidden rounded-xl"
+        style={{ y: imageOffset }}
       >
-        <img 
-          src={imageUrl} 
-          alt={title} 
-          className="w-full h-full object-cover transition-transform duration-700"
+        <img
+          src={imageUrl}
+          alt={title}
+          className="w-full h-full object-cover transition-transform duration-700 aspect-video md:aspect-square"
+          style={{
+            transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+            transition: 'transform 0.7s ease-out'
+          }}
         />
       </motion.div>
       
-      {/* Gradient overlay */}
-      <motion.div 
-        className={`absolute inset-0 ${
-          direction === 'left' 
-            ? 'bg-gradient-to-r from-black via-black/70 to-transparent' 
-            : 'bg-gradient-to-l from-black via-black/70 to-transparent'
-        }`}
-        style={{ opacity: overlayOpacity }}
-      />
-      
       {/* Content */}
-      <motion.div
-        className={`absolute inset-0 flex items-center ${direction === 'left' ? 'justify-start' : 'justify-end'} p-8 text-white`}
-        style={{ x: textX }}
+      <motion.div 
+        className="md:w-1/2 flex flex-col justify-center"
+        style={{ y: contentOffset, opacity }}
       >
-        <div className={`max-w-md ${direction === 'right' ? 'text-right' : 'text-left'}`}>
-          <div className="mb-4 flex items-center space-x-2">
-            <Badge variant="outline" className="border-white text-white">
-              {category}
-            </Badge>
-            {featured && (
-              <Badge className="bg-[hsl(var(--primary-yellow))] text-black font-medium">
-                Featured
-              </Badge>
-            )}
-          </div>
-          
-          <h3 className="text-3xl font-bold mb-3 leading-tight">{title}</h3>
-          
-          <div className="flex items-center text-sm text-gray-300 mb-4">
-            <CalendarDays className="w-4 h-4 mr-2" />
+        <div className="flex items-center mb-3">
+          <Badge variant="outline" className="mr-2">
+            {category}
+          </Badge>
+          <div className="flex items-center text-sm text-gray-500">
+            <Calendar className="w-4 h-4 mr-1" />
             <span>{date}</span>
           </div>
-          
-          <p className="text-gray-200 mb-6 line-clamp-3">
-            {excerpt}
-          </p>
-          
-          <motion.a
-            href={link}
-            className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-colors duration-300"
-            whileHover={{ x: direction === 'left' ? 5 : -5 }}
-          >
-            Read Full Story
-            <ExternalLink className="w-4 h-4 ml-2" />
-          </motion.a>
         </div>
+        
+        <h2 className="font-montserrat font-bold text-2xl md:text-3xl mb-4">
+          {title}
+        </h2>
+        
+        <p className="text-gray-600 mb-6 line-clamp-3">
+          {excerpt}
+        </p>
+        
+        <motion.div
+          whileHover={{ x: 5 }}
+          transition={{ duration: 0.2 }}
+        >
+          <a
+            href={link}
+            className="inline-flex items-center text-blue-600 font-medium hover:text-blue-800 transition-colors"
+          >
+            Read Full Story <ArrowRight className="ml-2" />
+          </a>
+        </motion.div>
       </motion.div>
     </motion.div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface IntersectionObserverProps {
   threshold?: number;
@@ -12,9 +12,18 @@ export const useIntersectionObserver = ({
   rootMargin = '0px',
 }: IntersectionObserverProps = {}) => {
   const [inView, setInView] = useState(false);
-  const ref = useRef<HTMLElement | null>(null);
+  const [node, setNode] = useState<Element | null>(null);
+
+  // This function will be called with the DOM node when it mounts
+  const ref = useCallback((node: Element | null) => {
+    if (node !== null) {
+      setNode(node);
+    }
+  }, []);
 
   useEffect(() => {
+    if (!node) return;
+    
     const observer = new IntersectionObserver(
       ([entry]) => {
         setInView(entry.isIntersecting);
@@ -26,18 +35,13 @@ export const useIntersectionObserver = ({
       }
     );
 
-    const currentRef = ref.current;
-
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
+    observer.observe(node);
 
     return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
+      observer.unobserve(node);
+      observer.disconnect();
     };
-  }, [threshold, root, rootMargin]);
+  }, [node, threshold, root, rootMargin]);
 
   return { ref, inView };
 };

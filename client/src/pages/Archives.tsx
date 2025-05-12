@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
 import { motion } from "framer-motion";
 import { Search, Calendar, Tag, ArrowRight, Loader2 } from "lucide-react";
