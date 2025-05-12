@@ -17,6 +17,7 @@ const siteLinks = [
   { name: "Timeline", href: "/timeline" },
   { name: "Journalists", href: "/journalists" },
   { name: "Events", href: "/events" },
+  { name: "Featured Stories", href: "/featured-stories" },
   { name: "Archives", href: "/archives" },
 ];
 
