@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const links = [
+const homeLinks = [
   { name: "HOME", href: "#hero" },
   { name: "18 YEARS OF IMPACT", href: "#levelling" },
   { name: "BEYOND THE NEWS", href: "#beyond" },
@@ -12,11 +12,25 @@ const links = [
   { name: "SHARE YOUR STORY", href: "#impact" },
 ];
 
+const siteLinks = [
+  { name: "HOME", href: "/" },
+  { name: "TIMELINE", href: "/timeline" },
+  { name: "JOURNALISTS", href: "/journalists" },
+  { name: "EVENTS", href: "/events" },
+  { name: "ARCHIVES", href: "/archives" },
+];
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const isMobile = useIsMobile();
+  
+  // Determine if we're on the home page
+  const isHomePage = location === "/";
+  
+  // Use the appropriate links based on the current page
+  const links = isHomePage ? homeLinks : siteLinks;
 
   // Handle scroll effect for navbar
   useEffect(() => {
@@ -32,20 +46,29 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Smooth scroll to sections
-  const handleScroll = (href: string) => {
-    const targetId = href.replace("#", "");
-    const element = document.getElementById(targetId);
+  // Handle link navigation
+  const handleNavigation = (href: string) => {
+    // Close mobile menu if open
+    setIsOpen(false);
     
-    if (element) {
-      // Close mobile menu if open
-      setIsOpen(false);
+    if (href.startsWith('#')) {
+      // Handle smooth scroll for section links on home page
+      const targetId = href.replace("#", "");
+      const element = document.getElementById(targetId);
       
-      // Scroll to element
-      window.scrollTo({
-        top: element.offsetTop - 80,
-        behavior: "smooth",
-      });
+      if (element) {
+        window.scrollTo({
+          top: element.offsetTop - 80,
+          behavior: "smooth",
+        });
+      } else if (!isHomePage) {
+        // If we're not on the home page but got a # link, go to home first
+        setLocation('/');
+        // We'll need to scroll after navigation, but that's tricky
+      }
+    } else {
+      // For regular page links
+      setLocation(href);
     }
   };
 
@@ -58,7 +81,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center">
           <div 
-            onClick={() => handleScroll("#hero")}
+            onClick={() => handleNavigation("#hero")}
             className="flex space-x-1 text-dark font-montserrat font-bold text-2xl cursor-pointer"
           >
             <span className="bg-[hsl(var(--primary-yellow))] px-2">THE</span>
@@ -72,7 +95,7 @@ const Navbar = () => {
           {links.map((link) => (
             <button
               key={link.name}
-              onClick={() => handleScroll(link.href)}
+              onClick={() => handleNavigation(link.href)}
               className="nav-link font-montserrat font-semibold"
             >
               {link.name}
@@ -108,7 +131,7 @@ const Navbar = () => {
               {links.map((link) => (
                 <button
                   key={link.name}
-                  onClick={() => handleScroll(link.href)}
+                  onClick={() => handleNavigation(link.href)}
                   className="py-2 font-montserrat font-semibold border-b border-gray-200 text-left"
                 >
                   {link.name}
