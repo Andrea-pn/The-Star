@@ -74,7 +74,7 @@ const Impact = () => {
     >
       <div className="container mx-auto px-4">
         <SectionHeading color="white">
-          HOW HAS SPORT<br />IMPACTED YOUR LIFE?
+          HOW HAS THE STAR<br />IMPACTED YOUR LIFE?
         </SectionHeading>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -85,19 +85,19 @@ const Impact = () => {
           >
             <div className="bg-gray-800 rounded-lg p-4 h-96 relative overflow-hidden">
               <img 
-                src="https://images.unsplash.com/photo-1524661135-423995f22d0b"
-                alt="Interactive impact map" 
+                src="https://images.unsplash.com/photo-1576633587382-13ddf37b1fc1"
+                alt="Newspaper headlines through the years" 
                 className="w-full h-full object-cover rounded opacity-60"
               />
               <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
-                <h3 className="font-montserrat font-bold text-2xl mb-4">OUR GLOBAL IMPACT</h3>
-                <p className="text-center mb-6">Explore how our programs are changing lives around the world</p>
+                <h3 className="font-montserrat font-bold text-2xl mb-4">18 YEARS OF HEADLINES</h3>
+                <p className="text-center mb-6">Explore our most impactful stories from 18 years of journalism</p>
                 <motion.button
                   className="bg-primary-yellow-light text-dark font-montserrat font-bold px-6 py-3 rounded-full hover:bg-opacity-90 transition-all duration-300"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  EXPLORE THE MAP
+                  BROWSE HEADLINES
                 </motion.button>
               </div>
             </div>
@@ -134,7 +134,7 @@ const Impact = () => {
             )}
             
             <div className="mt-8">
-              <h3 className="font-montserrat font-bold text-2xl mb-4">SHARE YOUR STORY</h3>
+              <h3 className="font-montserrat font-bold text-2xl mb-4">SHARE YOUR STAR STORY</h3>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
@@ -160,7 +160,7 @@ const Impact = () => {
                       <FormItem>
                         <FormControl>
                           <Textarea
-                            placeholder="How has sport impacted your life?"
+                            placeholder="How has The Star impacted your life over the past 18 years?"
                             rows={4}
                             className="bg-gray-800 border border-gray-700 rounded-md px-4 py-3 focus:ring-primary-yellow-light"
                             {...field}

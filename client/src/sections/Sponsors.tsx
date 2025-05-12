@@ -75,10 +75,10 @@ const Sponsors = () => {
           className="max-w-2xl mx-auto text-center mb-12"
         >
           <h2 className="font-montserrat font-black text-3xl md:text-4xl uppercase mb-6">
-            JOIN OUR TEAM
+            JOIN THE CELEBRATION
           </h2>
           <p className="text-lg mb-8">
-            Stay updated with our latest programs, events, and impact stories.
+            Get updates on The Star's 18th anniversary events, special editions, and exclusive stories.
           </p>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -116,7 +116,7 @@ const Sponsors = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="font-montserrat font-bold text-xl text-center uppercase mb-8"
           >
-            OUR PARTNERS & SPONSORS
+            CELEBRATION PARTNERS & MEDIA ALLIES
           </motion.h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 justify-items-center">
             {sponsors.map((sponsor, index) => (
