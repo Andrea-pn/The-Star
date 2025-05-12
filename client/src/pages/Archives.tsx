@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { motion } from "framer-motion";
-import { Search, Calendar, Tag, ArrowRight } from "lucide-react";
+import { Search, Calendar, Tag, ArrowRight, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { fetchPosts, fetchCategories, WPPost, WPCategory, getFeaturedImageUrl, createExcerpt } from "../services/wordpress-api";
+import { useQuery } from "@tanstack/react-query";
 
 type HeadlineArchive = {
   id: number;
@@ -36,7 +39,7 @@ const searchSchema = z.object({
 
 type SearchFormValues = z.infer<typeof searchSchema>;
 
-// Sample significant headlines from The Star's history
+// This will be populated with real data from WordPress, but we'll keep it for fallback
 const archiveHeadlines: HeadlineArchive[] = [
   {
     id: 1,
@@ -216,14 +219,116 @@ const archiveHeadlines: HeadlineArchive[] = [
   }
 ];
 
-// Get unique years and categories for filters
-const years = [...new Set(archiveHeadlines.map(headline => headline.year))].sort((a, b) => b - a);
-const categories = [...new Set(archiveHeadlines.map(headline => headline.category))];
-
 const Archives = () => {
   const { ref, inView } = useIntersectionObserver({ threshold: 0.1 });
-  const [searchResults, setSearchResults] = useState<HeadlineArchive[]>(archiveHeadlines);
+  const { toast } = useToast();
+  const [searchResults, setSearchResults] = useState<HeadlineArchive[]>([]);
   const [activeTab, setActiveTab] = useState("all");
+  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useState<{
+    search?: string;
+    categories?: number[];
+  }>({});
+
+  // Fetch posts from WordPress API
+  const { data: postsData, isLoading: isLoadingPosts, error: postsError } = useQuery({
+    queryKey: ['wp-posts', page, searchParams],
+    queryFn: async () => {
+      const result = await fetchPosts({
+        page,
+        per_page: 12,
+        search: searchParams.search,
+        categories: searchParams.categories,
+      });
+      return result;
+    }
+  });
+
+  // Fetch categories from WordPress API
+  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['wp-categories'],
+    queryFn: async () => {
+      return await fetchCategories();
+    }
+  });
+
+  // Extract unique years from posts
+  const getYearsFromPosts = (posts: WPPost[]) => {
+    if (!posts) return [];
+    const years = new Set<number>();
+    posts.forEach(post => {
+      const year = new Date(post.date).getFullYear();
+      years.add(year);
+    });
+    return Array.from(years).sort((a, b) => b - a);
+  };
+
+  // Convert WordPress posts to our HeadlineArchive format
+  useEffect(() => {
+    if (postsData?.posts) {
+      const convertedPosts: HeadlineArchive[] = postsData.posts.map(post => {
+        const date = new Date(post.date);
+        const year = date.getFullYear();
+        const formattedDate = date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        
+        // Get category from embedded data
+        let category = "News";
+        if (post._embedded && post._embedded['wp:term'] && post._embedded['wp:term'][0] && post._embedded['wp:term'][0].length > 0) {
+          category = post._embedded['wp:term'][0][0].name;
+        }
+        
+        // Get featured image
+        const imageUrl = getFeaturedImageUrl(post) || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        
+        // Extract excerpt
+        const description = post.excerpt?.rendered 
+          ? createExcerpt(post.excerpt.rendered)
+          : createExcerpt(post.content.rendered);
+        
+        return {
+          id: post.id,
+          title: post.title.rendered,
+          date: formattedDate,
+          imageUrl,
+          category,
+          description,
+          url: post.link,
+          isSignificant: false, // We could determine this based on specific categories or tags
+          year
+        };
+      });
+      
+      setSearchResults(convertedPosts);
+    } else if (!postsError) {
+      // If we don't have data yet and no error, use the sample data as initial state
+      setSearchResults(archiveHeadlines);
+    }
+  }, [postsData, postsError]);
+
+  // Handle errors
+  useEffect(() => {
+    if (postsError) {
+      toast({
+        title: "Error loading articles",
+        description: "Could not load articles from The Star. Using sample archives instead.",
+        variant: "destructive"
+      });
+      // Fallback to sample data
+      setSearchResults(archiveHeadlines);
+    }
+  }, [postsError, toast]);
+
+  // Get categories and years for filters
+  const wpCategories = categoriesData || [];
+  const wpYears = postsData ? getYearsFromPosts(postsData.posts) : [];
+  
+  // Fallback to static data if API fails
+  const years = wpYears.length > 0 ? wpYears : [...new Set(archiveHeadlines.map(headline => headline.year))].sort((a, b) => b - a);
+  const categories = wpCategories.length > 0 ? wpCategories.map(c => c.name) : [...new Set(archiveHeadlines.map(headline => headline.category))];
 
   // Form setup for search
   const form = useForm<SearchFormValues>({
@@ -237,28 +342,37 @@ const Archives = () => {
 
   // Handle search form submission
   const onSubmit = (values: SearchFormValues) => {
-    let filtered = [...archiveHeadlines];
+    // Reset to page 1 when searching
+    setPage(1);
     
-    // Filter by search query
+    const newParams: {
+      search?: string;
+      categories?: number[];
+    } = {};
+    
+    // Add search term if provided
     if (values.query) {
-      const searchTerm = values.query.toLowerCase();
-      filtered = filtered.filter(headline => 
-        headline.title.toLowerCase().includes(searchTerm) || 
-        headline.description.toLowerCase().includes(searchTerm)
-      );
+      newParams.search = values.query;
     }
     
-    // Filter by year
-    if (values.year && values.year !== "all") {
-      filtered = filtered.filter(headline => headline.year === parseInt(values.year));
+    // Add category if provided
+    if (values.category && values.category !== "all" && categoriesData) {
+      const selectedCategory = categoriesData.find(cat => cat.name === values.category);
+      if (selectedCategory) {
+        newParams.categories = [selectedCategory.id];
+      }
     }
     
-    // Filter by category
-    if (values.category && values.category !== "all") {
-      filtered = filtered.filter(headline => headline.category === values.category);
-    }
+    // Update search params
+    setSearchParams(newParams);
     
-    setSearchResults(filtered);
+    // If year filter is provided, we'll need to filter the results after they're fetched
+    // This is because WordPress API doesn't support filtering by year directly
+    if (values.year && values.year !== "all" && postsData) {
+      const yearValue = parseInt(values.year);
+      const filteredByYear = searchResults.filter(headline => headline.year === yearValue);
+      setSearchResults(filteredByYear);
+    }
   };
 
   // Handle tab change
