@@ -208,7 +208,10 @@ const Timeline = () => {
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gray-200 z-0" />
           
           {/* Timeline events with parallax effects */}
-          <div className="space-y-12" ref={ref}>
+          <div className="space-y-12" ref={(el) => {
+            // Use callback ref for intersection observer
+            if (el) ref(el);
+          }}>
             {timelineEvents.map((event, index) => (
               <ParallaxSection key={event.year} event={event} index={index} />
             ))}

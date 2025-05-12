@@ -477,7 +477,10 @@ const Journalists = () => {
             </motion.div>
           </motion.div>
 
-          <div className="max-w-6xl mx-auto" ref={ref}>
+          <div className="max-w-6xl mx-auto" ref={(el) => {
+            // Use callback ref for intersection observer 
+            if (el) ref(el);
+          }}>
             <motion.div 
               className="flex flex-col sm:flex-row justify-between mb-10 gap-4"
               initial={{ opacity: 0, y: 20 }}
