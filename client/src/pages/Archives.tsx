@@ -10,6 +10,7 @@ import { useIntersectionObserver } from "../hooks/useIntersectionObserver";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
 import SectionHeading from "../components/SectionHeading";
+import ModernContentCard from "../components/ModernContentCard";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -327,8 +328,8 @@ const Archives = () => {
   const wpYears = postsData ? getYearsFromPosts(postsData.posts) : [];
   
   // Fallback to static data if API fails
-  const years = wpYears.length > 0 ? wpYears : [...new Set(archiveHeadlines.map(headline => headline.year))].sort((a, b) => b - a);
-  const categories = wpCategories.length > 0 ? wpCategories.map(c => c.name) : [...new Set(archiveHeadlines.map(headline => headline.category))];
+  const years = wpYears.length > 0 ? wpYears : Array.from(new Set(archiveHeadlines.map(headline => headline.year))).sort((a, b) => b - a);
+  const categories = wpCategories.length > 0 ? wpCategories.map(c => c.name) : Array.from(new Set(archiveHeadlines.map(headline => headline.category)));
 
   // Form setup for search
   const form = useForm<SearchFormValues>({
@@ -620,49 +621,18 @@ const Archives = () => {
             ) : searchResults.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {searchResults.map((headline, index) => (
-                  <motion.div
+                  <ModernContentCard
                     key={headline.id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={inView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.4, delay: 0.1 + (index * 0.05) }}
-                    whileHover={{ y: -5 }}
-                  >
-                    <div className="h-48 overflow-hidden relative">
-                      <img 
-                        src={headline.imageUrl} 
-                        alt={headline.title} 
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
-                      />
-                      {headline.isSignificant && (
-                        <div className="absolute top-0 right-0 m-3">
-                          <Badge className="bg-[hsl(var(--primary-yellow))] text-[hsl(var(--dark))]">
-                            Significant
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-center text-gray-500 mb-2">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span className="text-sm">{headline.date}</span>
-                      </div>
-                      <h3 className="font-montserrat font-bold text-xl mb-3 line-clamp-2" dangerouslySetInnerHTML={{ __html: headline.title }}></h3>
-                      <div className="flex items-center mb-3">
-                        <Tag className="h-4 w-4 mr-2 text-[hsl(var(--primary-blue))]" />
-                        <span className="text-sm text-[hsl(var(--primary-blue))]">{headline.category}</span>
-                      </div>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-3">{headline.description}</p>
-                      <a 
-                        href={headline.url}
-                        target="_blank"
-                        rel="noopener noreferrer" 
-                        className="inline-flex items-center text-[hsl(var(--primary-blue))] font-semibold text-sm"
-                      >
-                        Read Full Story <ArrowRight className="h-4 w-4 ml-1" />
-                      </a>
-                    </div>
-                  </motion.div>
+                    title={headline.title}
+                    excerpt={headline.description}
+                    imageUrl={headline.imageUrl}
+                    date={headline.date}
+                    category={headline.category}
+                    tags={[headline.category]}
+                    link={headline.url}
+                    variant={headline.isSignificant ? "feature" : (index % 5 === 0 ? "feature" : "default")}
+                    aspectRatio={index % 3 === 0 ? "wide" : "square"}
+                  />
                 ))}
               </div>
             ) : (
