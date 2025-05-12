@@ -378,12 +378,7 @@ const Archives = () => {
   // Handle tab change
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    
-    if (value === "all") {
-      setSearchResults(archiveHeadlines);
-    } else if (value === "significant") {
-      setSearchResults(archiveHeadlines.filter(headline => headline.isSignificant));
-    }
+    setPage(1);
     
     // Reset form when changing tabs
     form.reset({
@@ -391,6 +386,34 @@ const Archives = () => {
       year: "",
       category: "",
     });
+    
+    if (value === "all") {
+      // Reset search params to show all posts
+      setSearchParams({});
+    } else if (value === "significant") {
+      // For significant news, we can use categories if available
+      // Alternatively, we could use tags or specific criteria
+      
+      // If we have categoriesData, we can look for categories like "featured" or "breaking"
+      if (categoriesData) {
+        const featuredCategory = categoriesData.find(
+          cat => cat.name.toLowerCase() === "featured" || 
+                cat.name.toLowerCase() === "breaking" ||
+                cat.name.toLowerCase() === "headline" ||
+                cat.name.toLowerCase() === "important"
+        );
+        
+        if (featuredCategory) {
+          setSearchParams({ categories: [featuredCategory.id] });
+        } else {
+          // If no relevant category found, show a curated list from our static data
+          setSearchResults(archiveHeadlines.filter(headline => headline.isSignificant));
+        }
+      } else {
+        // Fallback to static data if categoriesData is not available
+        setSearchResults(archiveHeadlines.filter(headline => headline.isSignificant));
+      }
+    }
   };
 
   return (
@@ -521,7 +544,12 @@ const Archives = () => {
           </motion.div>
 
           <div className="mt-8" ref={ref}>
-            {searchResults.length > 0 ? (
+            {isLoadingPosts || isLoadingCategories ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="h-12 w-12 animate-spin text-[hsl(var(--primary-blue))] mb-4" />
+                <p className="text-xl text-gray-600">Loading headlines from The Star...</p>
+              </div>
+            ) : searchResults.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {searchResults.map((headline, index) => (
                   <motion.div
@@ -551,14 +579,16 @@ const Archives = () => {
                         <Calendar className="h-4 w-4 mr-2" />
                         <span className="text-sm">{headline.date}</span>
                       </div>
-                      <h3 className="font-montserrat font-bold text-xl mb-3">{headline.title}</h3>
+                      <h3 className="font-montserrat font-bold text-xl mb-3 line-clamp-2" dangerouslySetInnerHTML={{ __html: headline.title }}></h3>
                       <div className="flex items-center mb-3">
                         <Tag className="h-4 w-4 mr-2 text-[hsl(var(--primary-blue))]" />
                         <span className="text-sm text-[hsl(var(--primary-blue))]">{headline.category}</span>
                       </div>
                       <p className="text-gray-600 text-sm mb-4 line-clamp-3">{headline.description}</p>
                       <a 
-                        href={headline.url} 
+                        href={headline.url}
+                        target="_blank"
+                        rel="noopener noreferrer" 
                         className="inline-flex items-center text-[hsl(var(--primary-blue))] font-semibold text-sm"
                       >
                         Read Full Story <ArrowRight className="h-4 w-4 ml-1" />
@@ -577,7 +607,8 @@ const Archives = () => {
                 <p className="text-gray-500 text-xl">No headlines found matching your search criteria.</p>
                 <Button 
                   onClick={() => {
-                    setSearchResults(archiveHeadlines);
+                    setSearchParams({});
+                    setPage(1);
                     form.reset({
                       query: "",
                       year: "",
@@ -590,6 +621,35 @@ const Archives = () => {
                   Reset Search
                 </Button>
               </motion.div>
+            )}
+            
+            {/* Pagination controls */}
+            {postsData && postsData.totalPages > 1 && (
+              <div className="flex justify-center mt-12">
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center px-4">
+                    <span className="text-sm text-gray-600">
+                      Page {page} of {postsData.totalPages}
+                    </span>
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setPage(p => Math.min(postsData.totalPages, p + 1))}
+                    disabled={page === postsData.totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
 

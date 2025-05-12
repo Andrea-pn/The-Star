@@ -168,14 +168,30 @@ export function getFeaturedImageUrl(post: WPPost, size: 'thumbnail' | 'medium' |
   
   const media = post._embedded['wp:featuredmedia'][0];
   
-  // First try to get the requested size
-  if (media.media_details?.sizes && media.media_details.sizes[size]) {
-    return media.media_details.sizes[size].source_url;
+  // Check if media details and sizes exist
+  if (!media.media_details?.sizes) {
+    return media.source_url;
+  }
+  
+  // Map of WordPress image sizes
+  const sizeMap: Record<string, string> = {
+    'thumbnail': 'thumbnail',
+    'medium': 'medium',
+    'large': 'large',
+    'full': 'full'
+  };
+  
+  // Get the WordPress size name
+  const wpSize = sizeMap[size];
+  
+  // Try to get the requested size if it exists
+  if (wpSize in media.media_details.sizes) {
+    return (media.media_details.sizes as any)[wpSize].source_url;
   }
   
   // Fall back to medium_large if available
-  if (media.media_details?.sizes?.medium_large) {
-    return media.media_details.sizes.medium_large.source_url;
+  if ('medium_large' in media.media_details.sizes) {
+    return (media.media_details.sizes as any)['medium_large'].source_url;
   }
   
   // Otherwise return the full source URL
