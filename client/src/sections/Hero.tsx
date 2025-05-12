@@ -16,11 +16,11 @@ const Hero = () => {
             className="order-2 md:order-1"
           >
             <h1 className="font-montserrat font-black text-7xl sm:text-8xl md:text-9xl uppercase leading-none tracking-tighter mb-6">
-              GAME<br />ON
+              18<br />YEARS
             </h1>
             <p className="text-lg md:text-xl mb-8 max-w-lg">
-              Inspiring communities through the transformative power of sports. 
-              Building connections, fostering development and creating positive change.
+              Celebrating 18 years of trusted journalism in Kenya. 
+              From breaking news to investigative reporting, The Star has been the voice of Kenya since 2007.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <motion.a
@@ -29,7 +29,7 @@ const Hero = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                OUR IMPACT
+                OUR JOURNEY
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
@@ -40,7 +40,7 @@ const Hero = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                EXPLORE
+                ANNIVERSARY EVENTS
               </motion.a>
             </div>
           </motion.div>
@@ -52,8 +52,8 @@ const Hero = () => {
             className="order-1 md:order-2 relative"
           >
             <img 
-              src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-              alt="Football players in action" 
+              src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+              alt="Journalist working on a news story" 
               className="rounded-lg shadow-2xl transform md:rotate-3 hover:rotate-0 transition-all duration-500"
             />
             <motion.div 
@@ -62,7 +62,7 @@ const Hero = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.8 }}
             >
-              Building communities through sport
+              18 years of trusted journalism
             </motion.div>
           </motion.div>
         </div>

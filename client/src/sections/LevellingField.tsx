@@ -22,7 +22,7 @@ const LevellingField = () => {
     >
       <div className="container mx-auto px-4">
         <SectionHeading color="white">
-          LEVELLING THE FIELD
+          18 YEARS OF IMPACT
         </SectionHeading>
         
         <motion.p
@@ -31,8 +31,8 @@ const LevellingField = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-white text-xl mb-12 max-w-3xl"
         >
-          Creating equal opportunities in sports through mentorship, 
-          training programs and community initiatives that make sports accessible to all.
+          For 18 years, The Star has been a pillar of Kenyan journalism,
+          bringing vital stories to light and making a significant impact on society through factual reporting.
         </motion.p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
@@ -42,9 +42,9 @@ const LevellingField = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <PolaroidImage
-              src="https://images.unsplash.com/photo-1526232761682-d26e03ac148e"
-              alt="Basketball coach with young players"
-              caption="Free Training Program"
+              src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167"
+              alt="Journalist reporting breaking news"
+              caption="Breaking News Coverage"
               rotation={-2}
             />
           </motion.div>
@@ -55,9 +55,9 @@ const LevellingField = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <PolaroidImage
-              src="https://images.unsplash.com/photo-1599058917212-d750089bc07e"
-              alt="Sports equipment donation event"
-              caption="Equipment for All"
+              src="https://images.unsplash.com/photo-1557200134-90327ee9fafa"
+              alt="Investigative journalism documents"
+              caption="Investigative Reporting"
               rotation={1}
             />
           </motion.div>
@@ -68,9 +68,9 @@ const LevellingField = () => {
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             <PolaroidImage
-              src="https://images.unsplash.com/photo-1526401485004-46910ecc8e51"
-              alt="Diverse group of athletes training together"
-              caption="Inclusive Sports Camps"
+              src="https://images.unsplash.com/photo-1503428593586-e225b39bddfe"
+              alt="Community engagement event"
+              caption="Community Engagement"
               rotation={-1}
             />
           </motion.div>
@@ -81,9 +81,9 @@ const LevellingField = () => {
             transition={{ duration: 0.5, delay: 0.6 }}
           >
             <PolaroidImage
-              src="https://images.unsplash.com/photo-1517927033932-b3d18e61fb21"
-              alt="Adaptive sports for people with disabilities"
-              caption="Adaptive Sports Initiative"
+              src="https://images.unsplash.com/photo-1569616724363-dbdebd9561ca"
+              alt="Digital journalism platform"
+              caption="Digital Transformation"
               rotation={2}
             />
           </motion.div>

@@ -14,10 +14,10 @@ const Home = () => {
   return (
     <>
       <Helmet>
-        <title>Game On - Sports Community Impact</title>
-        <meta name="description" content="Inspiring communities through the transformative power of sports. Building connections, fostering development and creating positive change." />
-        <meta property="og:title" content="Game On - Sports Community Impact" />
-        <meta property="og:description" content="Discover how our sports programs are changing lives and communities. Join our mission for positive impact through the power of sports." />
+        <title>The Star Kenya - 18 Years of Journalism Excellence</title>
+        <meta name="description" content="Celebrating 18 years of trusted journalism, community impact, and giving voice to Kenyans. Join us in marking this special milestone." />
+        <meta property="og:title" content="The Star Kenya - 18th Anniversary Celebration" />
+        <meta property="og:description" content="For 18 years, The Star has been Kenya's trusted source of news and information. Join our anniversary celebration as we reflect on our journey and look ahead to the future." />
         <meta property="og:type" content="website" />
       </Helmet>
 

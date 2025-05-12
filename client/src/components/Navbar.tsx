@@ -6,10 +6,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const links = [
   { name: "HOME", href: "#hero" },
-  { name: "LEVELLING THE FIELD", href: "#levelling" },
-  { name: "BEYOND THE GAME", href: "#beyond" },
-  { name: "CHAMPIONS OF CHANGE", href: "#champions" },
-  { name: "IMPACT", href: "#impact" },
+  { name: "18 YEARS OF IMPACT", href: "#levelling" },
+  { name: "STORIES THAT MATTER", href: "#beyond" },
+  { name: "VOICES OF KENYA", href: "#champions" },
+  { name: "JOIN THE CELEBRATION", href: "#impact" },
 ];
 
 const Navbar = () => {
@@ -59,8 +59,9 @@ const Navbar = () => {
         <div className="flex items-center">
           <Link href="/">
             <a className="flex space-x-1 text-dark font-montserrat font-bold text-2xl">
-              <span className="bg-[hsl(var(--primary-yellow))] px-2">GAME</span>
-              <span className="bg-[hsl(var(--primary-red))] text-white px-2">ON</span>
+              <span className="bg-[hsl(var(--primary-yellow))] px-2">THE</span>
+              <span className="bg-[hsl(var(--primary-red))] text-white px-2">STAR</span>
+              <span className="text-[hsl(var(--primary-blue))] px-2">18</span>
             </a>
           </Link>
         </div>
