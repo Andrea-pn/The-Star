@@ -1,7 +1,7 @@
 // WordPress API service
 import { apiRequest } from '../lib/queryClient';
 
-const WP_API_URL = 'https://thefamoustv.com/wp-json/wp/v2';
+const WP_API_URL = 'http://localhost/thestar/wp-json/wp/v2';
 
 export interface WPPost {
   id: number;

@@ -56,14 +56,14 @@ const impactStats = [
 const StatCard = ({ stat, index }: { stat: typeof impactStats[0], index: number }) => {
   return (
     <motion.div
-      className="bg-gradient-to-br from-blue-900 to-blue-800 p-6 rounded-lg shadow-lg"
+      className="black-blue  p-6 rounded-lg shadow-lg"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 * index }}
       viewport={{ once: true, amount: 0.3 }}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
     >
-      <div className="p-3 bg-blue-700 w-fit rounded-lg mb-4">
+      <div className="p-3 bg-[rgb(30,55,87)] w-fit rounded-lg mb-4">
         {stat.icon}
       </div>
       <div className="font-montserrat font-bold text-4xl md:text-5xl mb-1 text-white">
@@ -132,14 +132,14 @@ const Impact = () => {
   return (
     <section 
       id="impact" 
-      className="bg-gradient-to-br from-[hsl(var(--primary-blue))] to-[hsl(var(--primary-blue-dark))] py-20 relative text-white overflow-hidden"
+      className="bg-black py-20 relative text-white overflow-hidden"
       ref={containerRef}
     >
       {/* Enhanced background decorative elements with parallax */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Top right motion element */}
         <motion.div 
-          className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-white opacity-5"
+          className="absolute -top-5 -right-20 w-96 h-96 rounded-full bg-white opacity-5 "
           style={{ 
             y: yPos,
             scale: useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1.05, 0.95]) 
@@ -157,32 +157,36 @@ const Impact = () => {
         
         {/* Decorative floating elements inspired by BBC Storyworks */}
         <motion.div 
-          className="absolute top-1/4 left-[15%] w-12 h-12 rounded-full bg-blue-400 opacity-10"
-          style={{ 
+          className="absolute top-1/4 left-[15%] w-12 h-12 rounded-full opacity-10"
+  style={{ 
+    backgroundColor: "rgb(30, 55, 87)",
             y: useTransform(scrollYProgress, [0, 1], [-30, 30]),
             x: useTransform(scrollYProgress, [0, 1], [-10, 10]) 
           }}
         />
         
         <motion.div 
-          className="absolute top-2/3 right-[10%] w-20 h-20 rounded-full bg-blue-300 opacity-10"
-          style={{ 
+          className="absolute top-2/3 right-[10%] w-20 h-20 rounded-full opacity-10"
+  style={{ 
+
+         backgroundColor: "rgb(30, 55, 87)", 
             y: useTransform(scrollYProgress, [0, 1], [40, -40]),
             x: useTransform(scrollYProgress, [0, 1], [20, -20]) 
           }}
         />
         
         <motion.div 
-          className="absolute top-1/2 right-1/4 w-16 h-16 rounded-md rotate-45 bg-white opacity-5"
-          style={{ 
+          className="absolute bottom-1/2 left-1/4 w-24 h-24 rounded-full opacity-5"
+  style={{ 
             y: useTransform(scrollYProgress, [0, 1], [-50, 50]),
             rotate: useTransform(scrollYProgress, [0, 1], [45, 90]) 
           }}
         />
         
         <motion.div 
-          className="absolute bottom-1/3 left-1/3 w-24 h-24 rounded-full bg-blue-200 opacity-5"
+          className="absolute bottom-1/3 left-1/3 w-24 h-24 rounded-full opacity-5"
           style={{ 
+          backgroundColor: "rgb(30, 55, 87)", 
             y: useTransform(scrollYProgress, [0, 1], [30, -30]),
             scale: useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 0.9]) 
           }}
@@ -198,8 +202,7 @@ const Impact = () => {
           transition={{ duration: 0.5 }}
         >
           <SectionHeading color="white">
-            18 YEARS OF IMPACT
-          </SectionHeading>
+            18 YEARS OF IMPACT          </SectionHeading>
           
           <motion.p 
             className="text-blue-100 text-lg mt-4"
@@ -229,9 +232,13 @@ const Impact = () => {
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="bg-blue-800 bg-opacity-70 backdrop-blur-sm rounded-xl p-8 h-full relative overflow-hidden shadow-xl">
-              <div className="absolute -right-10 -bottom-10 w-40 h-40 rounded-full bg-blue-600 opacity-20 blur-2xl" />
-              
+            <div
+  className="backdrop-blur-sm rounded-xl p-8 h-full relative overflow-hidden shadow-xl"
+  style={{ background: "linear-gradient(45deg, #051523, #6d6d6d78)" }}
+>
+  <div className="absolute -right-10 -bottom-10 w-40 h-40 rounded-full opacity-20 blur-2xl"
+  style={{ background: "linear-gradient(45deg, #051523, #6d6d6d78)" }} />
+
               <h3 className="font-montserrat font-bold text-2xl mb-6 text-white">SHARE YOUR STORY</h3>
               <p className="text-blue-100 mb-6">
                 How has The Star's journalism impacted your life? Share your experience with us.
@@ -248,8 +255,9 @@ const Impact = () => {
                           <Input 
                             placeholder="Your Name" 
                             {...field} 
-                            className="bg-blue-700 bg-opacity-50 border-blue-600 text-white placeholder:text-blue-300"
-                          />
+                           className="border-gray-600 text-white placeholder:text-blue-300"
+style={{ backgroundColor: "rgb(30, 55, 87)" }}
+                              ></Input>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -264,7 +272,8 @@ const Impact = () => {
                         <FormControl>
                           <Textarea 
                             placeholder="Your story and how The Star has impacted you..." 
-                            className="min-h-[120px] bg-blue-700 bg-opacity-50 border-blue-600 text-white placeholder:text-blue-300"
+                            className="min-h-[120px] border-blue-600 text-white placeholder:text-blue-300"
+style={{ backgroundColor: "rgb(30, 55, 87)" }}
                             {...field} 
                           />
                         </FormControl>
@@ -292,7 +301,8 @@ const Impact = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col h-full"
           >
-            <div className="bg-blue-800 bg-opacity-70 backdrop-blur-sm rounded-xl p-8 mb-6 shadow-xl">
+            <div className="bg-opacity-70 backdrop-blur-sm rounded-xl p-8 mb-6 shadow-xl"
+            style={{ background: 'linear-gradient(45deg, #051523, #6d6d6d78)' }}>
               <h3 className="font-montserrat font-bold text-2xl mb-6 text-white">TESTIMONIALS</h3>
               
               {testimonial && (
@@ -307,7 +317,9 @@ const Impact = () => {
                       "{testimonial.story}"
                     </p>
                     <div className="flex items-center mt-4 pl-4">
-                      <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-montserrat font-bold text-xl">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center font-montserrat font-bold text-xl"
+style={{ backgroundColor: "rgb(30, 55, 87)" }}>
+                        
                         {testimonial.name.charAt(0)}
                       </div>
                       <div className="ml-3">
@@ -322,12 +334,17 @@ const Impact = () => {
             </div>
             
             <motion.div 
-              className="bg-blue-800 bg-opacity-70 backdrop-blur-sm rounded-xl p-8 shadow-xl relative overflow-hidden flex-1"
+              className="backdrop-blur-sm rounded-xl p-8 shadow-xl relative overflow-hidden flex-1"
+              style={{ background: "linear-gradient(45deg, #051523, #6d6d6d78)" }}
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full bg-blue-600 opacity-20 blur-2xl" />
-              
+              <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full opacity-20 blur-2xl"
+                 style={{
+                  background: "linear-gradient(45deg, #051523, #6d6d6d78)"
+           }}
+/>
+
               <h3 className="font-montserrat font-bold text-2xl mb-4 text-white">OUR ARCHIVE</h3>
               <p className="text-blue-100 mb-6">
                 Explore 18 years of impactful journalism through our digital archives. Browse historic headlines and significant stories.

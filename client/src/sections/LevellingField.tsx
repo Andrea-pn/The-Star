@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import SectionHeading from "../components/SectionHeading";
 import PolaroidImage from "../components/PolaroidImage";
 import TornPaperEdge from "../components/TornPaperEdge";
@@ -13,23 +13,23 @@ import { useState, useEffect } from "react";
 const postToPolaroidProps = (post: WPPost, rotation: number = 0) => {
   const imageUrl = getFeaturedImageUrl(post) || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167';
   
-  // Extract category
-  let category = "News";
-  if (post._embedded && post._embedded['wp:term'] && post._embedded['wp:term'][0] && post._embedded['wp:term'][0].length > 0) {
-    category = post._embedded['wp:term'][0][0].name;
-  }
+  // Get the title and decode HTML entities
+  const title = post.title.rendered.replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"');
   
   return {
     src: imageUrl,
-    alt: post.title.rendered,
-    caption: category,
-    rotation
+    alt: title, 
+    caption: title, 
+    rotation,
+    link: post.link
   };
 };
 
 const LevellingField = () => {
   const { ref, inView } = useIntersectionObserver({ threshold: 0.1 });
   const [featuredPosts, setFeaturedPosts] = useState<WPPost[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   // Fetch training programs from API (legacy)
   const { data: programs = [] } = useQuery<TrainingProgram[]>({
@@ -42,7 +42,7 @@ const LevellingField = () => {
     queryFn: async () => {
       // Fetch posts with featured media embedded
       const result = await fetchPosts({
-        per_page: 4,
+        per_page: 8, // More posts for carousel
         _embed: true
       });
       return result;
@@ -56,8 +56,98 @@ const LevellingField = () => {
     }
   }, [postsData]);
 
-  // Create array of rotations for polaroid images
+  // Create array of rotations for polaroid images (same as original)
   const rotations = [-2, 1, -1, 2];
+
+  // Fallback static data (maintaining original structure)
+  const staticCards = [
+    {
+      src: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167",
+      alt: "Journalist reporting breaking news",
+      caption: "Breaking News Coverage",
+      rotation: -2
+    },
+    {
+      src: "https://images.unsplash.com/photo-1557200134-90327ee9fafa",
+      alt: "Investigative journalism documents", 
+      caption: "Investigative Reporting",
+      rotation: 1
+    },
+    {
+      src: "https://images.unsplash.com/photo-1503428593586-e225b39bddfe",
+      alt: "Community engagement event",
+      caption: "Community Engagement", 
+      rotation: -1
+    },
+    {
+      src: "https://images.unsplash.com/photo-1569616724363-dbdebd9561ca",
+      alt: "Digital journalism platform",
+      caption: "Digital Transformation",
+      rotation: 2
+    },
+    {
+      src: "https://images.unsplash.com/photo-1504711434969-e33886168f5c",
+      alt: "Political reporting",
+      caption: "Political Coverage",
+      rotation: -2
+    },
+    {
+      src: "https://images.unsplash.com/photo-1586339949916-3e9457bef6d3",
+      alt: "Sports journalism",
+      caption: "Sports Reporting",
+      rotation: 1
+    },
+    {
+      src: "https://images.unsplash.com/photo-1551836022-deb4988cc6c0",
+      alt: "Business journalism",
+      caption: "Business Coverage",
+      rotation: -1
+    },
+    {
+      src: "https://images.unsplash.com/photo-1495020689067-958852a7765e",
+      alt: "Entertainment reporting",
+      caption: "Entertainment News",
+      rotation: 2
+    }
+  ];
+
+  // Use WordPress posts if available, otherwise use static data
+  const allCards = featuredPosts.length > 0 
+    ? featuredPosts.map((post, index) => postToPolaroidProps(post, rotations[index % rotations.length]))
+    : staticCards;
+
+  // Group cards into slides of 4 (original grid layout)
+  const cardsPerSlide = 4;
+  const totalSlides = Math.ceil(allCards.length / cardsPerSlide);
+  const slides = Array.from({ length: totalSlides }, (_, index) =>
+    allCards.slice(index * cardsPerSlide, (index + 1) * cardsPerSlide)
+  );
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!isAutoPlaying || totalSlides <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, totalSlides]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    setIsAutoPlaying(false);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+    setIsAutoPlaying(false);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    setIsAutoPlaying(false);
+  };
 
   return (
     <section 
@@ -80,84 +170,122 @@ const LevellingField = () => {
           bringing vital stories to light and making a significant impact on society through factual reporting.
         </motion.p>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
-          {isLoadingPosts ? (
-            <div className="col-span-full flex justify-center items-center py-12">
-              <Loader2 className="h-12 w-12 animate-spin text-white" />
-              <span className="ml-3 text-white text-lg">Loading featured stories...</span>
+        {isLoadingPosts ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-12 w-12 animate-spin text-white" />
+            <span className="ml-3 text-white text-lg">Loading featured stories...</span>
+          </div>
+        ) : (
+          <div className="relative mt-16">
+            {/* Carousel Container */}
+            <div 
+              className="relative overflow-visible"
+              onMouseEnter={() => setIsAutoPlaying(false)}
+              onMouseLeave={() => setIsAutoPlaying(true)}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentSlide}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+                  initial={{ opacity: 0, x: 300 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -300 }}
+                  transition={{ 
+                    duration: 0.8, 
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                >
+                  {slides[currentSlide]?.map((card, index) => (
+                    <motion.div
+                      key={`${currentSlide}-${index}`}
+                      initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ 
+                        duration: 0.6, 
+                        delay: index * 0.1,
+                        ease: [0.25, 0.46, 0.45, 0.94]
+                      }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        rotate: 0,
+                        transition: { duration: 0.3 }
+                      }}
+                    >
+                      {'link' in card ? (
+                        <a href={card.link as string} target="_blank" rel="noopener noreferrer">
+                          <PolaroidImage
+                            src={card.src}
+                            alt={card.alt}
+                            caption={card.caption}
+                            rotation={card.rotation}
+                          />
+                        </a>
+                      ) : (
+                        <PolaroidImage
+                          src={card.src}
+                          alt={card.alt}
+                          caption={card.caption}
+                          rotation={card.rotation}
+                        />
+                      )}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
             </div>
-          ) : featuredPosts.length > 0 ? (
-            featuredPosts.map((post, index) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.3 + (index * 0.1) }}
-              >
-                <a href={post.link} target="_blank" rel="noopener noreferrer">
-                  <PolaroidImage
-                    {...postToPolaroidProps(post, rotations[index % rotations.length])}
+
+            {/* Navigation Arrows - Only show if more than 1 slide */}
+            {totalSlides > 1 && (
+              <>
+                <motion.button
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 shadow-lg"
+                  onClick={prevSlide}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: 0.5 }}
+                >
+                  <ChevronLeft className="w-6 h-6 text-white" />
+                </motion.button>
+                
+                <motion.button
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 shadow-lg"
+                  onClick={nextSlide}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: 0.5 }}
+                >
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </motion.button>
+              </>
+            )}
+
+            {/* Dot Indicators - Only show if more than 1 slide */}
+            {totalSlides > 1 && (
+              <div className="flex justify-center mt-8 space-x-3">
+                {slides.map((_, index) => (
+                  <motion.button
+                    key={index}
+                    className={`transition-all duration-300 rounded-full ${
+                      index === currentSlide 
+                        ? 'w-8 h-3 bg-white' 
+                        : 'w-3 h-3 bg-white bg-opacity-40 hover:bg-opacity-60'
+                    }`}
+                    onClick={() => goToSlide(index)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={inView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.6 + (index * 0.05) }}
                   />
-                </a>
-              </motion.div>
-            ))
-          ) : (
-            // Fallback to static content if no posts
-            <>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <PolaroidImage
-                  src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167"
-                  alt="Journalist reporting breaking news"
-                  caption="Breaking News Coverage"
-                  rotation={-2}
-                />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <PolaroidImage
-                  src="https://images.unsplash.com/photo-1557200134-90327ee9fafa"
-                  alt="Investigative journalism documents"
-                  caption="Investigative Reporting"
-                  rotation={1}
-                />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.5 }}
-              >
-                <PolaroidImage
-                  src="https://images.unsplash.com/photo-1503428593586-e225b39bddfe"
-                  alt="Community engagement event"
-                  caption="Community Engagement"
-                  rotation={-1}
-                />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.6 }}
-              >
-                <PolaroidImage
-                  src="https://images.unsplash.com/photo-1569616724363-dbdebd9561ca"
-                  alt="Digital journalism platform"
-                  caption="Digital Transformation"
-                  rotation={2}
-                />
-              </motion.div>
-            </>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -188,7 +316,7 @@ const LevellingField = () => {
         <div className="h-8 w-8 bg-white rounded-full"></div>
       </motion.div>
       
-      <TornPaperEdge color="#FFC726" />
+    <TornPaperEdge color="hsl(42 100% 57%)" />
     </section>
   );
 };

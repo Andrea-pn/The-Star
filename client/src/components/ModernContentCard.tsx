@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { Calendar, ArrowRightIcon, Tag } from 'lucide-react';
 
 interface ModernContentCardProps {
-  title: string;
+  post_title: string;
   excerpt: string;
+  content: string
   imageUrl: string;
   date?: string;
   category?: string;
@@ -15,8 +16,9 @@ interface ModernContentCardProps {
 }
 
 const ModernContentCard = ({
-  title,
+  post_title,
   excerpt,
+  content,
   imageUrl,
   date,
   category,
@@ -39,7 +41,7 @@ const ModernContentCard = ({
       imageContainer: "overflow-hidden",
       image: `${aspectRatioClasses[aspectRatio]} object-cover w-full transition-transform duration-700`,
       content: "p-6 flex-1 flex flex-col",
-      title: "font-montserrat font-bold text-xl mb-2 line-clamp-2 text-gray-800",
+      post_title: "font-montserrat font-bold text-xl mb-2 line-clamp-2 text-gray-800",
       excerpt: "text-gray-600 mb-4 line-clamp-3 text-sm flex-1",
       meta: "flex items-center text-xs text-gray-500 mt-auto",
     },
@@ -48,7 +50,7 @@ const ModernContentCard = ({
       imageContainer: "overflow-hidden w-1/3",
       image: "h-full w-full object-cover transition-transform duration-700",
       content: "p-4 flex-1 flex flex-col",
-      title: "font-montserrat font-bold text-lg mb-1 line-clamp-2 text-gray-800",
+      post_title: "font-montserrat font-bold text-lg mb-1 line-clamp-2 text-gray-800",
       excerpt: "text-gray-600 line-clamp-2 text-sm flex-1",
       meta: "flex items-center text-xs text-gray-500 mt-auto",
     },
@@ -57,7 +59,7 @@ const ModernContentCard = ({
       imageContainer: "overflow-hidden relative",
       image: `${aspectRatioClasses[aspectRatio]} object-cover w-full transition-transform duration-700`,
       content: "p-6 flex-1 flex flex-col relative z-10",
-      title: "font-montserrat font-bold text-2xl mb-3 line-clamp-2 text-gray-800",
+      post_title: "font-montserrat font-bold text-2xl mb-3 line-clamp-2 text-gray-800",
       excerpt: "text-gray-600 mb-4 line-clamp-3 flex-1",
       meta: "flex items-center text-sm text-gray-500 mt-auto",
     },
@@ -79,7 +81,7 @@ const ModernContentCard = ({
       <div className={styles.imageContainer}>
         <motion.img
           src={imageUrl}
-          alt={title}
+          alt={post_title}
           className={styles.image}
           animate={{ scale: isHovered ? 1.05 : 1 }}
         />
@@ -88,7 +90,7 @@ const ModernContentCard = ({
         )}
         {category && variant === 'feature' && (
           <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium">
-            {category}
+            {category} 
           </div>
         )}
       </div>
@@ -96,14 +98,14 @@ const ModernContentCard = ({
       <div className={styles.content}>
         {category && variant !== 'feature' && (
           <div className="text-xs font-medium text-blue-600 mb-1">
-            {category}
+            {category} 
           </div>
         )}
         
-        <h3 className={styles.title}>{title}</h3>
+        <h3 className={styles.post_title}>{post_title}</h3>
         
         <p className={styles.excerpt}>
-          {excerpt}
+          {content}
         </p>
         
         <div className={styles.meta}>

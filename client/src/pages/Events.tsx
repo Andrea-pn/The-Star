@@ -209,7 +209,7 @@ const Events = () => {
                     <Button 
                       className="w-full bg-[hsl(var(--primary-blue))]"
                     >
-                      REGISTER
+                      LEARN MORE
                     </Button>
                   </div>
                 </motion.div>
@@ -309,7 +309,7 @@ const Events = () => {
                   <Button 
                     className="w-full bg-[hsl(var(--primary-blue))]"
                   >
-                    REGISTER NOW
+                    LEARN MORE
                   </Button>
                 </div>
               </motion.div>

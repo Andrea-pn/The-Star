@@ -137,3 +137,6 @@
     @apply filter-none opacity-100;
   }
 }
+.black-blue {
+      background: linear-gradient(45deg, #051523f7, #6d6d6d78);
+}

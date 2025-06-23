@@ -11,6 +11,7 @@ import Journalists from "@/pages/Journalists";
 import Events from "@/pages/Events";
 import Archives from "@/pages/Archives";
 import FeaturedStories from "@/pages/FeaturedStories";
+import Articles from "@/pages/Articles";
 
 function Router() {
   // Get current location for navigation effects
@@ -29,6 +30,9 @@ function Router() {
       <Route path="/events" component={Events} />
       <Route path="/archives" component={Archives} />
       <Route path="/featured-stories" component={FeaturedStories} />
+      <Route path="/articles" component={Articles} />
+      
+
       <Route component={NotFound} />
     </Switch>
   );

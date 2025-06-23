@@ -121,17 +121,18 @@ const FeaturedStories = () => {
               
               {/* Rest of the stories */}
               {postsData.posts.slice(1).map((post, index) => (
-                <ImmersiveStoryCard
-                  key={post.id}
-                  title={post.title.rendered}
-                  excerpt={createExcerpt(extractTextFromHtml(post.excerpt.rendered), 150)}
-                  imageUrl={getFeaturedImageUrl(post) || '/placeholder-image.jpg'}
-                  date={formatDate(post.date)}
-                  category={extractCategory(post)}
-                  link={post.link}
-                  direction={index % 2 === 0 ? 'left' : 'right'}
-                />
-              ))}
+          <ImmersiveStoryCard
+            key={post.id}
+            title={post.title.rendered} // ✅ Corrected title
+            excerpt={createExcerpt(extractTextFromHtml(post.excerpt.rendered), 150)}
+            imageUrl={getFeaturedImageUrl(post) || '/placeholder-image.jpg'}
+            date={formatDate(post.date)}
+            category={extractCategory(post)}
+            link={post.link}
+            direction={index % 2 === 0 ? 'left' : 'right'}
+          />
+        ))}
+
             </div>
           ) : (
             <div className="text-center py-16">

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import SectionHeading from "../components/SectionHeading";
 import PolaroidImage from "../components/PolaroidImage";
 import TornPaperEdge from "../components/TornPaperEdge";
@@ -9,41 +9,40 @@ import { BeyondProgram } from "../types";
 import { fetchPosts, getFeaturedImageUrl, WPPost } from "../services/wordpress-api";
 import { useState, useEffect } from "react";
 
-// Function to convert WordPress post to PolaroidImage props
 const postToPolaroidProps = (post: WPPost, rotation: number = 0) => {
   const imageUrl = getFeaturedImageUrl(post) || 'https://images.unsplash.com/photo-1516321497487-e288fb19713f';
   
-  // Extract category
   let category = "News";
   if (post._embedded && post._embedded['wp:term'] && post._embedded['wp:term'][0] && post._embedded['wp:term'][0].length > 0) {
     category = post._embedded['wp:term'][0][0].name;
   }
   
+  const title = post.title.rendered.replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"');
+  
   return {
     src: imageUrl,
-    alt: post.title.rendered,
-    caption: category,
-    rotation
+    alt: title, 
+    caption: title, 
+    rotation,
+    link: post.link
   };
 };
 
 const BeyondGame = () => {
   const { ref, inView } = useIntersectionObserver({ threshold: 0.1 });
   const [featuredPosts, setFeaturedPosts] = useState<WPPost[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Fetch beyond game programs from API (legacy)
   const { data: programs = [] } = useQuery<BeyondProgram[]>({
     queryKey: ['/api/programs/beyond'],
   });
 
-  // Fetch featured posts from WordPress API with a different category
   const { data: postsData, isLoading: isLoadingPosts } = useQuery({
     queryKey: ['wp-beyond-posts'],
     queryFn: async () => {
-      // Fetch different posts than the ones in LevellingField section
-      // We're using a different page to ensure different content
       const result = await fetchPosts({
-        per_page: 4,
+        per_page: 8, // Increased for carousel
         page: 2,
         _embed: true
       });
@@ -51,15 +50,103 @@ const BeyondGame = () => {
     }
   });
 
-  // Process posts data when available
   useEffect(() => {
     if (postsData?.posts) {
       setFeaturedPosts(postsData.posts);
     }
   }, [postsData]);
 
-  // Create array of rotations for polaroid images
   const rotations = [1, -2, 3, -1];
+
+  // Fallback static data for when posts aren't available
+  const staticCards = [
+    {
+      src: "https://images.unsplash.com/photo-1516321497487-e288fb19713f",
+      alt: "Community engagement panel discussion",
+      caption: "Public Debate Forums",
+      rotation: 1
+    },
+    {
+      src: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655",
+      alt: "Journalism school program",
+      caption: "Journalism Education",
+      rotation: -2
+    },
+    {
+      src: "https://images.unsplash.com/photo-1576267423445-b2e0074d68a4",
+      alt: "Digital media training",
+      caption: "Digital Literacy",
+      rotation: 3
+    },
+    {
+      src: "https://images.unsplash.com/photo-1559223984-d8c32f5d5fb1",
+      alt: "Mobile journalism",
+      caption: "Mobile Reporting",
+      rotation: -1
+    },
+    {
+      src: "https://images.unsplash.com/photo-1557200134-90327ee9fafa",
+      alt: "Media literacy workshop",
+      caption: "Media Literacy Training",
+      rotation: 2
+    },
+    {
+      src: "https://images.unsplash.com/photo-1503428593586-e225b39bddfe",
+      alt: "Community outreach program",
+      caption: "Community Outreach",
+      rotation: -1
+    },
+    {
+      src: "https://images.unsplash.com/photo-1569616724363-dbdebd9561ca",
+      alt: "Digital transformation",
+      caption: "Digital Innovation",
+      rotation: 1
+    },
+    {
+      src: "https://images.unsplash.com/photo-1504711434969-e33886168f5c",
+      alt: "Policy engagement",
+      caption: "Policy Dialogue",
+      rotation: -2
+    }
+  ];
+
+  // Use WordPress posts if available, otherwise use static data
+  const allCards = featuredPosts.length > 0 
+    ? featuredPosts.map((post, index) => postToPolaroidProps(post, rotations[index % rotations.length]))
+    : staticCards;
+
+  // Group cards into slides of 4
+  const cardsPerSlide = 4;
+  const totalSlides = Math.ceil(allCards.length / cardsPerSlide);
+  const slides = Array.from({ length: totalSlides }, (_, index) =>
+    allCards.slice(index * cardsPerSlide, (index + 1) * cardsPerSlide)
+  );
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!isAutoPlaying || totalSlides <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, totalSlides]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    setIsAutoPlaying(false);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+    setIsAutoPlaying(false);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    setIsAutoPlaying(false);
+  };
 
   return (
     <section 
@@ -82,84 +169,122 @@ const BeyondGame = () => {
           shaping public policy, and empowering communities through knowledge and truth.
         </motion.p>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
-          {isLoadingPosts ? (
-            <div className="col-span-full flex justify-center items-center py-12">
-              <Loader2 className="h-12 w-12 animate-spin text-[hsl(var(--primary-blue))]" />
-              <span className="ml-3 text-[hsl(var(--primary-blue))] text-lg">Loading impact stories...</span>
+        {isLoadingPosts ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-12 w-12 animate-spin text-[hsl(var(--primary-blue))]" />
+            <span className="ml-3 text-[hsl(var(--primary-blue))] text-lg">Loading impact stories...</span>
+          </div>
+        ) : (
+          <div className="relative mt-16">
+            {/* Carousel Container */}
+            <div 
+              className="relative overflow-visible"
+              onMouseEnter={() => setIsAutoPlaying(false)}
+              onMouseLeave={() => setIsAutoPlaying(true)}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentSlide}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+                  initial={{ opacity: 0, x: 300 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -300 }}
+                  transition={{ 
+                    duration: 0.8, 
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                >
+                  {slides[currentSlide]?.map((card, index) => (
+                    <motion.div
+                      key={`${currentSlide}-${index}`}
+                      initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ 
+                        duration: 0.6, 
+                        delay: index * 0.1,
+                        ease: [0.25, 0.46, 0.45, 0.94]
+                      }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        rotate: 0,
+                        transition: { duration: 0.3 }
+                      }}
+                    >
+                      {'link' in card ? (
+                        <a href={card.link as string} target="_blank" rel="noopener noreferrer">
+                          <PolaroidImage
+                            src={card.src}
+                            alt={card.alt}
+                            caption={card.caption}
+                            rotation={card.rotation}
+                          />
+                        </a>
+                      ) : (
+                        <PolaroidImage
+                          src={card.src}
+                          alt={card.alt}
+                          caption={card.caption}
+                          rotation={card.rotation}
+                        />
+                      )}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
             </div>
-          ) : featuredPosts.length > 0 ? (
-            featuredPosts.map((post, index) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.3 + (index * 0.1) }}
-              >
-                <a href={post.link} target="_blank" rel="noopener noreferrer">
-                  <PolaroidImage
-                    {...postToPolaroidProps(post, rotations[index % rotations.length])}
+
+            {/* Navigation Arrows - Only show if more than 1 slide */}
+            {totalSlides > 1 && (
+              <>
+                <motion.button
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 shadow-lg"
+                  onClick={prevSlide}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: 0.5 }}
+                >
+                  <ChevronLeft className="w-6 h-6 text-[hsl(var(--primary-blue))]" />
+                </motion.button>
+                
+                <motion.button
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 shadow-lg"
+                  onClick={nextSlide}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: 0.5 }}
+                >
+                  <ChevronRight className="w-6 h-6 text-[hsl(var(--primary-blue))]" />
+                </motion.button>
+              </>
+            )}
+
+            {/* Dot Indicators - Only show if more than 1 slide */}
+            {totalSlides > 1 && (
+              <div className="flex justify-center mt-8 space-x-3">
+                {slides.map((_, index) => (
+                  <motion.button
+                    key={index}
+                    className={`transition-all duration-300 rounded-full ${
+                      index === currentSlide 
+                        ? 'w-8 h-3 bg-[hsl(var(--primary-blue))]' 
+                        : 'w-3 h-3 bg-[hsl(var(--primary-blue))] bg-opacity-40 hover:bg-opacity-60'
+                    }`}
+                    onClick={() => goToSlide(index)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={inView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.6 + (index * 0.05) }}
                   />
-                </a>
-              </motion.div>
-            ))
-          ) : (
-            // Fallback to static content if no posts
-            <>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <PolaroidImage
-                  src="https://images.unsplash.com/photo-1516321497487-e288fb19713f"
-                  alt="Community engagement panel discussion"
-                  caption="Public Debate Forums"
-                  rotation={1}
-                />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <PolaroidImage
-                  src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655"
-                  alt="Journalism school program"
-                  caption="Journalism Education"
-                  rotation={-2}
-                />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.5 }}
-              >
-                <PolaroidImage
-                  src="https://images.unsplash.com/photo-1576267423445-b2e0074d68a4"
-                  alt="Digital media training"
-                  caption="Digital Literacy"
-                  rotation={3}
-                />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.6 }}
-              >
-                <PolaroidImage
-                  src="https://images.unsplash.com/photo-1559223984-d8c32f5d5fb1"
-                  alt="Mobile journalism"
-                  caption="Mobile Reporting"
-                  rotation={-1}
-                />
-              </motion.div>
-            </>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
           <motion.div
@@ -202,7 +327,7 @@ const BeyondGame = () => {
         </div>
       </div>
       
-      <TornPaperEdge direction="bottom" color="white" />
+      <TornPaperEdge direction="bottom" color="hsl(214, 48%, 23%)" />
     </section>
   );
 };

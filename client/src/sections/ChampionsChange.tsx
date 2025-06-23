@@ -106,7 +106,7 @@ const ChampionsChange = () => {
         <Star className="h-8 w-8 text-primary-yellow-light animate-pulse" />
       </motion.div>
       
-      <TornPaperEdge color="#111111" />
+      <TornPaperEdge color="#000000" />
     </section>
   );
 };
