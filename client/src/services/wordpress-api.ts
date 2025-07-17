@@ -2,7 +2,7 @@
 import { apiRequest } from '../lib/queryClient';
 
 //const WP_API_URL = 'http://localhost/thestar/wp-json/wp/v2';
-const WP_API_URL = 'https://thestar18.radioafrica.digital/thestar/wp-json/wp/v2';
+const WP_API_URL = 'https://thestar18.radioafrica.digital/wp-json/wp/v2';
 
 export interface WPPost {
   id: number;
